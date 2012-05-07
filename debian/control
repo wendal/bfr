@@ -1,0 +1,18 @@
+Source: bfr
+Section: utils
+Priority: extra
+Maintainer: Mark Glines <mark@glines.org>
+Standards-Version: 3.2.1
+Build-Depends: debhelper
+
+Package: bfr
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: nonblocking 8-bit-clean pipe buffer
+ bfr's purpose is to buffer data.  It buffers from its standard input
+ and/or a list of files of your choosing, and allows this data to flow
+ to its standard output at whatever rate that end can handle.  It's
+ useful for any situation in which its beneficial to have I/O occur in
+ a detached yet smooth fashion.
+ Also contained is bfp, a buffering /dev/dsp writer.  Pipe your raw PCM
+ data to it, for skip-free bliss.

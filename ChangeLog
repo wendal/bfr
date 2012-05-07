@@ -1,0 +1,105 @@
+bfr (1.6) unstable; urgency=low
+
+  * Disable progress-bar for a forked off reader.  Otherwise, both parent
+    and child write out progress bars, which is silly and useless.
+  * rename setmode() to set_mystate() to allow compilation on NetBSD,
+    FreeBSD and Darwin, at least.  This was actually reported by 3 or 4
+    people (thanks!).  Those pesky Linux coders, thinking they own the
+    namespace, no respect for others.  Yep, thats me.
+  * Incorporated a patch adding a "total" field to the progress bar, from
+    Gerard Saraber (thanks!)
+  * To fix a Debian policy violation having to do with declaring build
+    dependencies on build-essential packages, incorporate a patch from
+    Santiago Vila (thanks!)  Closes: #217530
+
+ -- Mark Glines <mark@glines.org>  Wed, 03 Mar 2004 08:26:28 -0800
+
+bfr (1.5) unstable; urgency=low
+
+  * added a hyphen in the description.  Closes: #124447
+  * Turned on -Wall by default, included some headerfiles.  Closes: #124398
+  * Added a --fork (-f) option, to fork off a 10k reader for cases where buggy
+    kernels block a process indefiniately to read from a cdrom, NFS, etc even
+    when nonblocking I/O is being used.
+  * Added an --output (-o) option, to change the default behavior where bfr
+    outputs to stdout, and bfp outputs to /dev/dsp.
+  * Fixed an extremely silly error regarding some percent signs which I wanted
+    to literally print but were turned into format strings, again turned up by
+    -Wall.
+  * Minor progress-bar related fixes.
+  * Added some testsuite entries to properly kick --fork's tires.
+  * Various code cleanups in testsuite's test.c, uncovered by -Wall.
+
+ -- Mark Glines <mark@glines.org>  Sun,  3 Feb 2002 12:09:31 -0800
+
+bfr (1.4) unstable testing; urgency=low
+
+  * Progress bar updating (and clearing previous line) works much more nicely
+  * Minor debianization cleanups suggested by Adam Lazur
+
+ -- Mark Glines <mark@glines.org>  Tue, 13 Nov 2001 12:39:25 -0800
+
+bfr (1.3) unstable testing; urgency=low
+
+  * Fixed the progress bar
+  * Fixed some warnings with Debian sid's automake 1.4-p4
+  * Updated my e-mail address everywhere
+
+ -- Mark Glines <mark@glines.org>  Fri, 26 Oct 2001 21:42:49 -0700
+
+bfr (1.2) unstable testing; urgency=low
+
+  * Incorporated (in an idea sense, at least) an --initial (special case of RO)
+    from Arnd Bergmann (thanks!)
+  * Looks like Rob Ekl finally found a bug that would sometimes cause bfr/bfp to
+    hang at end of execution rather than exit cleanly, incorporated his patch
+    (thanks!)
+  * Redid the status bar completely, I want feedback on whether its better or
+    worse.
+  * Reworked most of the command-line arguments to be more consistent with
+    suffixes, and especially, to allow them to use the % suffix, which is based
+    on buffersize.
+
+ -- Mark Glines <paranoid@deathsdoor.com>  Wed, 10 Oct 2001 19:02:52 -0700
+
+bfr (1.1) unstable testing; urgency=low
+
+  * found a tiny bug which sometimes caused bfr to enter a nonstop loop
+    rather than exiting cleanly, when its job was finished.
+  * fixed it.
+  * updated the manpage slightly.  it still sucks, but now it sucks a little
+    more accurately.
+
+ -- Mark Glines <paranoid@deathsdoor.com>  Sat, 26 May 2001 22:07:33 -0700
+
+bfr (1.0) unstable testing; urgency=low
+
+  * *sigh* I mention an upcoming 1.0 release and everything goes to hell.
+    I suppose its because I'm trying harder to find problems, but still...
+  * It seems that I broke the progress-meter stuff when I implemented the
+    bandwidth cap.  Fixed.  Also, the progress-meter stuff was broken because
+    tv.tv_sec * 1000000 recently started overflowing a signed long, and came
+    up negative.  My very own Y2K+1 bug, I'm so proud. =)
+  * Linux 2.4.0's /dev/urandom driver no longer guarantees that it will
+    return the amount of random garbage that you request!  This screwed up the
+    testsuite, which was incorrectly assuming that /dev/urandom really did give
+    us 200000 bytes, with dd.  I replaced it with a pipe of cat through head,
+    works fine now.
+  * Oops, forgot to update testit/Makefile.am when I made the namechange.
+  * fixed an overflow in the progress meter (it flipped and went negative)
+    that was hit at around 45 megs/second.  Throughput screenshot:
+    --[~/bfr]-- ./bfr -b 40m -p /dev/zero >/dev/null
+    [(RO) IN:  46533.6k/s -> BUFFER: 448.0k -> OUT:  46476.8k/s]
+  * final release... now the bugreports will start pouring in, right? =)
+
+ -- Mark Glines <paranoid@deathsdoor.com>  Thu, 25 Jan 2001 23:12:28 -0800
+
+bfr (0.99.9) unstable; urgency=low
+
+  * Initial release.
+
+ -- Mark Glines <paranoid@deathsdoor.com>  Sat, 13 Jan 2001 06:30:11 -0800
+
+Local variables:
+mode: debian-changelog
+End:

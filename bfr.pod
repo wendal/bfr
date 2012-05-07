@@ -1,0 +1,307 @@
+=head1 NAME
+
+B<bfr>, B<bfp> - nonblocking 8-bit-clean pipe buffer
+
+=head1 SYNOPSIS
+
+B<bfr> [B<-v>[B<v>]] [B<-t>I<0>] [B<-T>I<0>] [B<-b>I<100>] [B<-p><I<arg>>]  [B<-m>I<0>]
+	[B<-T>I<90>] [B<-C>I<0>] [<I<input file or ->> ...]
+
+B<bfp> [B<-v>[B<v>]] [B<-t>I<0>] [B<-T>I<0>] [B<-b>I<100>] [B<-p><I<arg>>]  [B<-m>I<0>]
+	[B<-T>I<90>] [B<-s>I<44100>] [B<-S>[I<y>|I<n>]] [B<-c>I<2>] [B<-B>I<2>]	 [B<-C>I<0>]
+	[<I<input file or ->> ...]
+
+[see OPTIONS for the --long equivelants to these]
+
+=head1 DESCRIPTION
+
+B<bfr>'s purpose is to buffer data.  (I hope this is obvious. =))  It 
+buffers from its standard input and/or a list of files of your choosing, and 
+allows this data to flow to its standard output at whatever rate that end
+can handle.  Its useful for any situation in which its beneficial to have
+I/O occur in a detached yet smooth fashion... possible applications:
+
+=over 2
+
+=item
+
+- CD burning.  A user in Spain was using this in front of cdrecord,
+apparently the CPU couldn't keep up with the 8x burner, so 30 megs (cdrecord's
+limit) wasn't enough.
+
+=item
+
+- Backups.  B<bfr> can be configured to release its data in large chunks, 
+rather than small flowing increments, which reduces tape seek.  B<bfr> also
+has a speedcap option, which ensures B<bfr> will never output more than a 
+certain amount (which you specify) of data per second.  This makes it useful
+for network backups without saturating your backbone or T1.
+
+=item
+
+- Multimedia.  Since B<bfr> does its best to yield data to its output at 
+whatever pace the other side can handle (essentially keeping the output stuffed
+full), it reduces skips.  This helps both movies (the pr0n must go on!) and audio
+(ditto mp3!).  The B<bfp> program, included in this package, is an extension to 
+B<bfr> whose primary purpose is to aid skipless audio playback, by properly
+configuring and writing to /dev/dsp.
+
+=back
+
+=head1 OPTIONS
+
+=over 2
+
+=item
+
+B<-h> | B<--help>
+
+=over 2
+
+=item
+
+display a (hopefully) helpful message.
+
+=back
+
+=item
+
+B<-v> | B<--verbose>
+
+=over 2
+
+=item
+
+enable verbosity (use twice for pedantic verbosity)
+
+=back
+
+=item
+
+B<-p> | B<--progress> (*)
+
+=over 2
+
+=item
+
+Enables "progress mode", with an optional arg specifying how to display the 
+data. The optional arg should take the form of a letter and another part... 
+the letter being "k", "b", "m" or "p", specifying whether B<bfr> filledness 
+should be displayed in Kilobytes, bytes, megabytes or as a percentage.  The 
+second, if a number, should be the multiplier by which throughput is measured.
+Otherwise, it may be "CD" for CD data (150K/sec) or "CA" for CD audio 
+(176K/sec).  If either is omitted, they default is kilobytes and 1k, 
+respectively.  Typical values: "k1k", to monitor data at the kilobyte level,
+and "pCD" and "pCA" to show meaningful values for CD data and CD audio (and
+total buffer usage as a percentage) , respectively.  The default is "k1k" for
+bfr, "pCA" for bfp.
+
+=back
+
+=item
+
+B<-m> | B<--minimum> (*)
+
+=over 2
+
+=item
+
+Set the amount of buffer to reach before output begins (to ensure a full 
+stream even at start).  The default is 10%.
+
+=back
+
+=item
+
+B<-i> | B<--initial> (*)
+
+=over 2
+
+=item
+
+Initial is a special case of --minimum, which takes effect only for initial
+prebuffering before output starts the first time.  If unspecified, it defaults
+to whatever --minimum is set to.
+
+=back
+
+=item
+
+B<-t> | B<--timeout> (*)
+
+=over 2
+
+=item
+
+Time, in seconds, to wait before aborting if both input and output are locked.
+A value of 0 means it will wait forever.  The default is 0.
+
+=back
+
+=item
+
+B<-T> | B<--throttle> (*)
+
+=over 2
+
+=item
+
+After filling the buffer, B<bfr> will allow the level of onhand data to go 
+down to this amount before accepting more input.  The default is 98%.
+
+=back
+
+=item
+
+B<-b> | B<--buffersize> (*)
+
+=over 2
+
+=item
+
+Full size of memory buffer.  The default is 5m.
+
+=back
+
+=item
+
+B<-C> | B<--speedcap> (*)
+
+=over 2
+
+=item
+
+If set to a non-zero value, B<bfr> will allow only this many bytes to be 
+output per second.
+
+=back
+
+=head2 BUFPLAY SPECIFIC OPTIONS
+
+=item
+
+B<-s> | B<--speed>
+
+=over 2
+
+=item
+
+Sound samples per second.  The default is 44100.
+
+=back
+
+=item
+
+B<-S> | B<--signed>
+
+=over 2
+
+=item
+
+Is the sound data signed (y) or unsigned (n)?  The default is y.
+
+=back
+
+=item
+
+B<-c> | B<--channels>
+
+=over 2
+
+=item
+
+Number of channels (1 = mono, 2 = stereo).  The default is 2.
+
+=back
+
+=item
+
+B<-B> | B<--bytes>
+
+=over 2
+
+=item
+
+Bytes per sound sample (1=8bit, 2=16bit).  The default is 2 (16bit).
+
+=back
+
+=head2 DEBUG SPECIFIC OPTIONS
+
+=item
+
+B<-d> | B<--debug>
+
+=over 2
+
+=item
+
+enable debugging - only valid for the bfrdebug and bfpdebug executables,
+not built or in dist packages by default.
+
+=back
+
+=back
+
+=head1 NOTES
+
+Options marked with a "(*)" can take their argument in simpler notation:
+You can use letters 'k' and 'm' can be used to specify kilobytes and 
+megabytes. Decimals are not allowed, use '6500k' instead of '6.5M'.  '1k' 
+means 1024, and '1m' means 1048576.  '80%' means, literally, 80 percent
+of buffersize.  Percentages are mostly useful for the various threshold
+settings - using it with --buffersize or --timeout is a bit silly.
+
+Full list of qualifiers:
+
+=over 2
+
+=item
+
+t - 1000 (1 thousand)
+
+=item
+
+K or k - 1024 (1 kilobyte)
+
+=item
+
+M - 1000000 (1 million)
+
+=item
+
+m - 1048576 (1 megabyte)
+
+=item
+
+b - 1000000000 (1 billion (either you're insane, or I want your hardware))
+
+=item
+
+G or g - 1073741824 (1 gigabyte (either you're insane, or I want your hardware))
+
+=back
+
+=head1 BUGS
+
+If you find an inconsistency, whether its an unexpected or undocumented
+"feature" or something missing, please let me know!
+
+=head1 THANKS
+
+First of all, thank you for using it. =)
+
+Thanks also to the various people who have helped me at various stages of the 
+way, through ideas, notes, suggestions, bugfixes and death threats, including
+but not  limited to: miponme, Samuli Karkkainen, Scott Gifford, Sam Phillips,
+Andreas Metzler, Arnd Bergmann, Rob Ekl
+
+=head1 AUTHOR
+
+Mark Glines <mark@glines.org>
+
+http://www.glines.org/software/bfr.html
+
+=head1 SEE ALSO
+
+L<bag>, L<dog>
